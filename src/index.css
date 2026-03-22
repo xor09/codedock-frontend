@@ -1,0 +1,104 @@
+/* CodeDock - Mac + HFT Terminal Theme */
+
+:root {
+  --neon-green: #00e066;
+  --neon-green-glow: rgba(0, 224, 102, 0.4);
+  --neon-red: #ff4757;
+  --bg-dark: #0a0a0c;
+  --bg-panel: rgba(18, 18, 20, 0.9);
+  --border-dark: rgba(255, 255, 255, 0.08);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, sans-serif;
+  background: var(--bg-dark);
+  color: #e8e8ed;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Subtle grid background */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(0, 224, 102, 0.06), transparent),
+    linear-gradient(180deg, #0a0a0c 0%, #0f0f12 100%);
+  z-index: -1;
+}
+
+/* Traffic lights */
+.traffic-light {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  position: relative;
+}
+
+.traffic-light.close {
+  background: linear-gradient(180deg, #ff6058 0%, #ff4f4a 100%);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
+}
+
+.traffic-light.minimize {
+  background: linear-gradient(180deg, #ffbd2e 0%, #feac00 100%);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
+}
+
+.traffic-light.maximize {
+  background: linear-gradient(180deg, #28c840 0%, #1aab29 100%);
+  box-shadow: 0 0 0 0.5px rgba(0, 0, 0, 0.12);
+}
+
+/* Neon text glow */
+.neon-text {
+  color: var(--neon-green);
+  text-shadow: 0 0 20px var(--neon-green-glow);
+}
+
+/* Live pulse animation */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.pulse {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+/* Monaco editor transparent background */
+.monaco-editor,
+.monaco-editor .margin,
+.monaco-editor-background {
+  background: transparent !important;
+}
