@@ -79,13 +79,36 @@ export default function Register() {
         1200
       );
     } catch (error: any) {
+      const message = error?.message || "";
+
+      // Unverified account — redirect to OTP page with fresh OTP
+      if (message.includes("Account exists but not verified")) {
+        toast({
+          position: "top-right",
+          duration: 3000,
+          render: () => (
+            <TerminalToast
+              title="OTP Resent"
+              description="A new OTP has been sent to your email."
+              accentColor={TOAST_COLOR.success}
+              icon={<FiCheckCircle size={16} />}
+            />
+          ),
+        });
+        setTimeout(
+          () => navigate("/verify-email", { state: { email: form.email } }),
+          1200
+        );
+        return;
+      }
+
       toast({
         position: "top-right",
         duration: 2500,
         render: () => (
           <TerminalToast
             title="Registration Failed"
-            description={error?.message || "Something went wrong."}
+            description={message || "Something went wrong."}
             accentColor={TOAST_COLOR.danger}
             icon={<FiXCircle size={16} />}
           />

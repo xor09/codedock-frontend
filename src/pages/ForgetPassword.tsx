@@ -64,13 +64,35 @@ export default function ForgotPassword() {
         ),
       });
     } catch (error: any) {
+      const message = error?.message || "";
+
+      if (message.includes("Email not verified")) {
+        toast({
+          position: "top-right",
+          duration: 3000,
+          render: () => (
+            <TerminalToast
+              title="Email Not Verified"
+              description="Please verify your email first. Redirecting to OTP page..."
+              accentColor={TOAST_COLOR.danger}
+              icon={<FiXCircle size={16} />}
+            />
+          ),
+        });
+        setTimeout(
+          () => navigate("/verify-email", { state: { email } }),
+          1500
+        );
+        return;
+      }
+
       toast({
         position: "top-right",
         duration: 2500,
         render: () => (
           <TerminalToast
             title="Request Failed"
-            description={error?.message || "Something went wrong. Try again."}
+            description={message || "Something went wrong. Try again."}
             accentColor={TOAST_COLOR.danger}
             icon={<FiXCircle size={16} />}
           />
