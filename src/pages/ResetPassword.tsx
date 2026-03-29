@@ -4,39 +4,91 @@ import {
   Flex,
   Heading,
   Input,
+  InputGroup,
+  InputRightElement,
+  IconButton,
   Stack,
   Text,
   useColorMode,
   useToast,
 } from "@chakra-ui/react";
-import { FiCheckCircle, FiXCircle, FiArrowLeft } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
+import {
+  FiCheckCircle,
+  FiXCircle,
+  FiEye,
+  FiEyeOff,
+  FiArrowLeft,
+} from "react-icons/fi";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { useState } from "react";
 import TerminalToast from "../components/TerminalToast";
 import { TOAST_COLOR } from "../constants";
-import { forgotPasswordApi } from "../api/auth";
+import { resetpasswordApi } from "../api/auth";
 
-export default function ForgotPassword() {
+export default function ResetPassword() {
   const { colorMode } = useColorMode();
   const isDark = colorMode === "dark";
   const navigate = useNavigate();
   const toast = useToast();
 
-  const [email, setEmail] = useState("");
+  // Token comes from the email link: /reset-password?token=XXXX
+  const [searchParams] = useSearchParams();
+  const token = searchParams.get("token") || "";
+
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [form, setForm] = useState({
+    newPassword: "",
+    confirmPassword: "",
+  });
+
+  const handleChange = (e: any) =>
+    setForm({ ...form, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
-    if (!email) {
+    if (!form.newPassword || !form.confirmPassword) {
       toast({
         position: "top-right",
         duration: 2500,
         render: () => (
           <TerminalToast
-            title="Email Required"
-            description="Please enter your email address."
+            title="Fields Required"
+            description="Please fill in both password fields."
+            accentColor={TOAST_COLOR.danger}
+            icon={<FiXCircle size={16} />}
+          />
+        ),
+      });
+      return;
+    }
+
+    if (form.newPassword !== form.confirmPassword) {
+      toast({
+        position: "top-right",
+        duration: 2500,
+        render: () => (
+          <TerminalToast
+            title="Password Mismatch"
+            description="Passwords do not match. Please try again."
+            accentColor={TOAST_COLOR.danger}
+            icon={<FiXCircle size={16} />}
+          />
+        ),
+      });
+      return;
+    }
+
+    if (!token) {
+      toast({
+        position: "top-right",
+        duration: 2500,
+        render: () => (
+          <TerminalToast
+            title="Invalid Link"
+            description="Reset token is missing. Please request a new link."
             accentColor={TOAST_COLOR.danger}
             icon={<FiXCircle size={16} />}
           />
@@ -47,30 +99,35 @@ export default function ForgotPassword() {
 
     setLoading(true);
     try {
-      await forgotPasswordApi(email);
+      await resetpasswordApi({ token, newPassword: form.newPassword });
 
-      setIsSubmitted(true);
+      setIsSuccess(true);
 
       toast({
         position: "top-right",
         duration: 2500,
         render: () => (
           <TerminalToast
-            title="Reset Link Sent"
-            description="Check your inbox for the password reset link."
+            title="Password Updated"
+            description="Your password has been reset successfully."
             accentColor={TOAST_COLOR.success}
             icon={<FiCheckCircle size={16} />}
           />
         ),
       });
+
+      // Auto-redirect to login after 2s
+      setTimeout(() => navigate("/login"), 2000);
     } catch (error: any) {
       toast({
         position: "top-right",
         duration: 2500,
         render: () => (
           <TerminalToast
-            title="Request Failed"
-            description={error?.message || "Something went wrong. Try again."}
+            title="Reset Failed"
+            description={
+              error?.message || "Something went wrong. Please try again."
+            }
             accentColor={TOAST_COLOR.danger}
             icon={<FiXCircle size={16} />}
           />
@@ -136,10 +193,10 @@ export default function ForgotPassword() {
           </Box>
         </Flex>
 
-        {!isSubmitted ? (
+        {!isSuccess ? (
           <>
             <Heading size="md" textAlign="center" mb={1} className="neon-text">
-              Reset Password
+              Set New Password
             </Heading>
 
             <Text
@@ -148,18 +205,56 @@ export default function ForgotPassword() {
               color={isDark ? "whiteAlpha.600" : "blackAlpha.600"}
               mb={6}
             >
-              Enter your email to receive a reset link
+              Enter your new password below
             </Text>
 
             <Stack spacing={4}>
-              <Input
-                placeholder="Email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
-                {...inputStyle}
-              />
+              {/* New Password */}
+              <InputGroup>
+                <Input
+                  placeholder="New password"
+                  name="newPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={form.newPassword}
+                  onChange={handleChange}
+                  {...inputStyle}
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label="Toggle password"
+                    icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                    size="sm"
+                    variant="ghost"
+                    color={isDark ? "whiteAlpha.600" : "blackAlpha.600"}
+                    onClick={() => setShowPassword(!showPassword)}
+                    _hover={{ color: "#00e066", bg: "transparent" }}
+                  />
+                </InputRightElement>
+              </InputGroup>
+
+              {/* Confirm Password */}
+              <InputGroup>
+                <Input
+                  placeholder="Confirm new password"
+                  name="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  value={form.confirmPassword}
+                  onChange={handleChange}
+                  onKeyDown={(e) => e.key === "Enter" && handleSubmit(e)}
+                  {...inputStyle}
+                />
+                <InputRightElement>
+                  <IconButton
+                    aria-label="Toggle password"
+                    icon={showPassword ? <FiEyeOff /> : <FiEye />}
+                    size="sm"
+                    variant="ghost"
+                    color={isDark ? "whiteAlpha.600" : "blackAlpha.600"}
+                    onClick={() => setShowPassword(!showPassword)}
+                    _hover={{ color: "#00e066", bg: "transparent" }}
+                  />
+                </InputRightElement>
+              </InputGroup>
 
               <Button
                 mt={2}
@@ -172,9 +267,9 @@ export default function ForgotPassword() {
                 }}
                 onClick={handleSubmit}
                 isLoading={loading}
-                loadingText="Sending..."
+                loadingText="Updating..."
               >
-                Send Reset Link
+                Update Password
               </Button>
             </Stack>
           </>
@@ -195,7 +290,7 @@ export default function ForgotPassword() {
             </Box>
 
             <Heading size="md" textAlign="center" className="neon-text">
-              Check Your Inbox
+              Password Updated!
             </Heading>
 
             <Text
@@ -203,11 +298,8 @@ export default function ForgotPassword() {
               fontSize="sm"
               color={isDark ? "whiteAlpha.600" : "blackAlpha.600"}
             >
-              If an account exists for{" "}
-              <Text as="span" color="#00e066" fontWeight="700">
-                {email}
-              </Text>
-              , you'll receive a reset link shortly.
+              Your password has been reset successfully. Redirecting you to
+              login...
             </Text>
 
             <Button
@@ -224,38 +316,19 @@ export default function ForgotPassword() {
               }}
               onClick={() => navigate("/login")}
             >
-              Back to Login
+              Go to Login
             </Button>
-
-            <Text
-              fontSize="sm"
-              color={isDark ? "whiteAlpha.500" : "blackAlpha.500"}
-            >
-              Didn't receive it?{" "}
-              <Text
-                as="span"
-                color="#00e066"
-                cursor="pointer"
-                fontWeight="700"
-                onClick={() => {
-                  setIsSubmitted(false);
-                  setEmail("");
-                }}
-              >
-                Try again
-              </Text>
-            </Text>
           </Stack>
         )}
 
-        {!isSubmitted && (
+        {!isSuccess && (
           <Text
             mt={6}
             fontSize="sm"
             textAlign="center"
             color={isDark ? "whiteAlpha.600" : "blackAlpha.600"}
           >
-            Remember your password?{" "}
+            Remembered your password?{" "}
             <Text
               as="span"
               color="#00e066"

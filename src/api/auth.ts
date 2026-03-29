@@ -17,3 +17,18 @@ export async function signupApi(form: any) {
     })
     return res
 }
+
+export async function forgotPasswordApi(email : string){
+  const res = await api.post("/auth/forgot-password",{
+     email
+  })
+  return res
+}
+
+export async function resetpasswordApi(form : any){
+  const res = await api.post("auth/reset-password",{
+       token : form.token,
+       newPassword : form.newPassword
+  })
+  return res
+}
