@@ -25,7 +25,6 @@ export default function Register() {
   const navigate = useNavigate();
   const toast = useToast();
 
-
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [form, setForm] = useState({
@@ -40,55 +39,60 @@ export default function Register() {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    if (form.password !== form.confirmPassword) {
-        toast({
-            position: "top-right",
-            duration: 2500,
-            render: () => (
-                <TerminalToast
-                title="Password Mismatch!"
-                description={"Password not matched!"}
-                accentColor={TOAST_COLOR.danger}
-                icon={<FiXCircle size={16} />}
-                />
-            ),
-        });
-        return;
-    }
-    
-    setLoading(true)
-    try {
-         await signupApi(form);
-        toast({
-            position: "top-right",
-            duration: 2500,
-            render: () => (
-                <TerminalToast
-                    title="User Created"
-                    description="Account created successfully. You can login now."
-                    accentColor={TOAST_COLOR.success}
-                    icon={<FiCheckCircle size={16} />}
-                />
-            ),
-        });
 
-        setTimeout(() => navigate("/login"), 1200);
+    if (form.password !== form.confirmPassword) {
+      toast({
+        position: "top-right",
+        duration: 2500,
+        render: () => (
+          <TerminalToast
+            title="Password Mismatch!"
+            description="Passwords do not match!"
+            accentColor={TOAST_COLOR.danger}
+            icon={<FiXCircle size={16} />}
+          />
+        ),
+      });
+      return;
+    }
+
+    setLoading(true);
+    try {
+      await signupApi(form);
+
+      toast({
+        position: "top-right",
+        duration: 2500,
+        render: () => (
+          <TerminalToast
+            title="Account Created!"
+            description="Check your email for the OTP to verify your account."
+            accentColor={TOAST_COLOR.success}
+            icon={<FiCheckCircle size={16} />}
+          />
+        ),
+      });
+
+      // Pass email via state so VerifyEmail page knows which email to verify
+      setTimeout(
+        () => navigate("/verify-email", { state: { email: form.email } }),
+        1200
+      );
     } catch (error: any) {
-        toast({
-            position: "top-right",
-            duration: 2500,
-            render: () => (
-                <TerminalToast
-                    title="User Creation Failed"
-                    description={error?.message || "Login failed"}
-                    accentColor={TOAST_COLOR.danger}
-                    icon={<FiXCircle size={16} />}
-                />
-            ),
-        });
-        // alert(error?.message || "Login failed");
+      toast({
+        position: "top-right",
+        duration: 2500,
+        render: () => (
+          <TerminalToast
+            title="Registration Failed"
+            description={error?.message || "Something went wrong."}
+            accentColor={TOAST_COLOR.danger}
+            icon={<FiXCircle size={16} />}
+          />
+        ),
+      });
     } finally {
-        setLoading(false)
+      setLoading(false);
     }
   };
 
@@ -196,10 +200,7 @@ export default function Register() {
                 variant="ghost"
                 color={isDark ? "whiteAlpha.600" : "blackAlpha.600"}
                 onClick={() => setShowPassword(!showPassword)}
-                _hover={{
-                  color: "#00e066",
-                  bg: "transparent",
-                }}
+                _hover={{ color: "#00e066", bg: "transparent" }}
               />
             </InputRightElement>
           </InputGroup>
@@ -222,10 +223,7 @@ export default function Register() {
                 variant="ghost"
                 color={isDark ? "whiteAlpha.600" : "blackAlpha.600"}
                 onClick={() => setShowPassword(!showPassword)}
-                _hover={{
-                  color: "#00e066",
-                  bg: "transparent",
-                }}
+                _hover={{ color: "#00e066", bg: "transparent" }}
               />
             </InputRightElement>
           </InputGroup>
@@ -241,6 +239,7 @@ export default function Register() {
             }}
             onClick={handleSubmit}
             isLoading={loading}
+            loadingText="Creating..."
           >
             Create Account
           </Button>

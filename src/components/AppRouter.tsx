@@ -4,6 +4,7 @@ import Login from '../pages/Login'
 import Register from '../pages/Register'
 import ForgotPassword from '../pages/ForgetPassword'
 import ResetPassword from '../pages/ResetPassword'
+import VerifyEmail from '../pages/VerifyEmail'
 
 export default function AppRoutes() {
   return (
@@ -13,6 +14,7 @@ export default function AppRoutes() {
       <Route path="/signup" element={<Register />} />
       <Route path = "/forgot-password" element={<ForgotPassword/>} />
       <Route path="/reset-password" element={<ResetPassword />} />
+       <Route path="/verify-email" element={<VerifyEmail />} />
     </Routes>
   )
 }

@@ -32,3 +32,18 @@ export async function resetpasswordApi(form : any){
   })
   return res
 }
+
+export async function verifyOtpApi(email : string , otp : string){
+  const res = await api.post("/auth/verify-otp",{
+       email,
+       otp
+  })
+  return res
+}
+
+export async function resendOtpApi(email : string){
+  const res = await api.post("auth/resend-otp",{
+     email
+  })
+  return res
+}
