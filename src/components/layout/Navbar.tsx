@@ -16,7 +16,7 @@ import {
 import { FiSun, FiMoon, FiUser, FiLogOut } from 'react-icons/fi'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../context/AuthContext'
-import logo from "../../../dist/HavinCode.jpeg"
+import logo from "../../assets/HavinCode.jpeg"
 
 export default function Navbar() {
   const navigate = useNavigate()
